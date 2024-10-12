@@ -10,6 +10,11 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* 박스 사이징 통일 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --main-color: #b39ddb; /* 파스텔톤 보라색 */
             --background-color: #ffffff;
@@ -39,6 +44,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
         .header h1 {
             margin: 0;
@@ -89,7 +95,6 @@
             max-width: 800px;
             margin: 40px auto;
             padding: 20px;
-            box-sizing: border-box; /* 추가 */
             background-color: var(--background-color);
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -97,8 +102,10 @@
         }
         label {
             font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
         }
-        input[type="file"], textarea, input[type="url"] {
+        input[type="file"], textarea, input[type="url"], select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -107,9 +114,8 @@
             background-color: var(--background-color);
             color: var(--text-color);
             transition: all 0.3s ease;
-            box-sizing: border-box; /* 추가 */
         }
-        input[type="file"]:focus, textarea:focus, input[type="url"]:focus {
+        input[type="file"]:focus, textarea:focus, input[type="url"]:focus, select:focus {
             border-color: var(--main-color);
             box-shadow: 0 0 10px var(--main-color);
             outline: none;
@@ -127,7 +133,6 @@
             transition: border-color 0.2s, color 0.2s, background-color 0.3s;
             margin-bottom: 20px;
             backdrop-filter: blur(3px);
-            box-sizing: border-box; /* 추가 */
         }
         .drag-drop-area.dragover {
             border-color: var(--main-color);
@@ -136,7 +141,7 @@
         }
         .buttons {
             display: flex;
-            flex-wrap: wrap; /* 추가 */
+            flex-wrap: wrap; /* 버튼이 넘치지 않도록 */
             gap: 10px;
             margin-top: 20px;
         }
@@ -172,7 +177,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-sizing: border-box; /* 추가 */
         }
         .file-list li.dark {
             background-color: #333;
@@ -188,9 +192,9 @@
         /* 형식 선택 스위치 스타일 */
         .format-switch {
             position: relative;
-            width: 200px;
+            width: 220px;
             height: 50px;
-            margin: 20px auto;
+            margin: 0 auto 20px auto; /* 맨 위로 이동 */
             background: var(--toggle-background);
             border-radius: 25px;
             overflow: hidden;
@@ -198,7 +202,6 @@
             align-items: center;
             justify-content: space-between;
             backdrop-filter: blur(5px);
-            box-sizing: border-box; /* 추가 */
         }
         .format-switch input {
             display: none;
@@ -216,7 +219,7 @@
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 96px;
+            width: 104px;
             height: 46px;
             background: var(--main-color);
             border-radius: 23px;
@@ -224,13 +227,26 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
         #formatHtml:checked ~ .toggle {
-            left: 102px;
+            left: 114px;
         }
-        #formatMd:checked ~ label[for="formatMd"] {
-            color: #fff;
-        }
+        #formatMd:checked ~ label[for="formatMd"],
         #formatHtml:checked ~ label[for="formatHtml"] {
             color: #fff;
+        }
+        /* 추가된 CSS 및 JS 입력 섹션 */
+        .additional-options {
+            display: none; /* 기본적으로 숨김 */
+            margin-top: 20px;
+            backdrop-filter: blur(3px);
+            padding: 15px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        [data-theme="dark"] .additional-options {
+            background-color: rgba(30, 30, 30, 0.8);
+        }
+        .additional-options.active {
+            display: block;
         }
         /* 미디어 쿼리 */
         @media (max-width: 600px) {
@@ -242,7 +258,7 @@
                 font-size: 20px;
             }
             .buttons {
-                flex-direction: column; /* 추가 */
+                flex-direction: column;
             }
             .buttons button {
                 font-size: 16px;
@@ -280,6 +296,30 @@
 
     <!-- 메인 컨테이너 -->
     <div class="container">
+
+        <!-- 형식 선택 스위치 -->
+        <div class="format-switch">
+            <input type="radio" name="textFormat" id="formatMd" value="md" checked>
+            <label for="formatMd">Markdown</label>
+            <input type="radio" name="textFormat" id="formatHtml" value="html">
+            <label for="formatHtml">HTML</label>
+            <div class="toggle"></div>
+        </div>
+
+        <!-- 텍스트 입력 섹션 -->
+        <div>
+            <label for="textInput">내용 작성:</label>
+            <textarea id="textInput" rows="10" placeholder="여기에 내용을 작성하세요..."></textarea>
+        </div>
+
+        <!-- 추가 옵션: CSS 및 JavaScript 입력 -->
+        <div class="additional-options" id="additionalOptions">
+            <label for="customCSS">추가 CSS:</label>
+            <textarea id="customCSS" rows="5" placeholder="여기에 CSS 코드를 작성하세요..."></textarea>
+            <label for="customJS">추가 JavaScript:</label>
+            <textarea id="customJS" rows="5" placeholder="여기에 JavaScript 코드를 작성하세요..."></textarea>
+        </div>
+
         <!-- 드래그 앤 드롭 섹션 -->
         <div class="drag-drop-area" id="dragDropArea">
             파일을 이곳에 드래그 앤 드롭하세요.
@@ -295,19 +335,6 @@
         <div>
             <label for="fileURL">파일 URL 입력 (.md, .html):</label>
             <input type="url" id="fileURL" placeholder="https://example.com/file.md">
-        </div>
-
-        <!-- 텍스트 입력 섹션 -->
-        <div>
-            <label for="textInput">또는 내용 작성:</label>
-            <textarea id="textInput" rows="10" placeholder="여기에 내용을 작성하세요..."></textarea>
-            <div class="format-switch">
-                <input type="radio" name="textFormat" id="formatMd" value="md" checked>
-                <label for="formatMd">Markdown</label>
-                <input type="radio" name="textFormat" id="formatHtml" value="html">
-                <label for="formatHtml">HTML</label>
-                <div class="toggle"></div>
-            </div>
         </div>
 
         <!-- 파일 목록 표시 -->
@@ -337,6 +364,9 @@
             const fileList = document.getElementById('fileList');
             const formatMd = document.getElementById('formatMd');
             const formatHtml = document.getElementById('formatHtml');
+            const additionalOptions = document.getElementById('additionalOptions');
+            const customCSS = document.getElementById('customCSS');
+            const customJS = document.getElementById('customJS');
 
             let files = [];
 
@@ -359,6 +389,21 @@
                     // 다크모드 클래스 제거
                     Array.from(fileList.children).forEach(li => li.classList.remove('dark'));
                 }
+            });
+
+            // 형식 선택 스위치 이벤트
+            const formatSwitch = document.querySelectorAll('input[name="textFormat"]');
+            formatSwitch.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (formatHtml.checked) {
+                        additionalOptions.classList.add('active');
+                    } else {
+                        additionalOptions.classList.remove('active');
+                        // 입력된 CSS 및 JS 초기화
+                        customCSS.value = '';
+                        customJS.value = '';
+                    }
+                });
             });
 
             // 파일 업로드 처리
@@ -390,18 +435,18 @@
             previewButton.addEventListener('click', async function() {
                 if (textInput.value.trim() !== '') {
                     const selectedFormat = document.querySelector('input[name="textFormat"]:checked').value;
-                    displayContent(textInput.value, selectedFormat);
+                    displayContent(textInput.value, selectedFormat, customCSS.value, customJS.value);
                 } else if (files.length > 0) {
-                    // 파일을 여러 개 지원할 경우, 첫 번째 파일을 미리보기
+                    // 파일을 여러 개 지원할 경우, 마지막 파일을 미리보기
                     const file = files[files.length - 1];
-                    displayContent(file.content, file.type);
+                    displayContent(file.content, file.type, '', '');
                 } else if (fileURL.value.trim() !== '') {
                     const url = fileURL.value.trim();
                     try {
                         await fetchFileFromURL(url);
                         if (files.length > 0) {
                             const file = files[files.length - 1];
-                            displayContent(file.content, file.type);
+                            displayContent(file.content, file.type, '', '');
                         } else {
                             alert('파일을 불러오는 데 실패했습니다.');
                         }
@@ -419,6 +464,10 @@
                 fileInput.value = '';
                 fileURL.value = '';
                 textInput.value = '';
+                formatMd.checked = true;
+                additionalOptions.classList.remove('active');
+                customCSS.value = '';
+                customJS.value = '';
                 files = [];
                 fileList.innerHTML = '';
             });
@@ -489,7 +538,7 @@
             }
 
             // 컨텐츠 표시 함수
-            function displayContent(content, type) {
+            function displayContent(content, type, css = '', js = '') {
                 let htmlContent = '';
                 if (type === 'md') {
                     // marked.js 설정에 highlight.js 적용
@@ -540,12 +589,14 @@
                             a { color: #b39ddb; }
                             pre { padding: 10px; border-radius: 8px; }
                             code { padding: 2px 4px; border-radius: 4px; }
+                            ${type === 'html' && css ? `<style>${css}</style>` : ''}
                         </style>
                     </head>
                     <body>
                         <div id="content">
                             ${htmlContent}
                         </div>
+                        ${type === 'html' && js ? `<script>${js}<\/script>` : ''}
                         <!-- highlight.js 라이브러리 추가 -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"><\/script>
                         <script>
