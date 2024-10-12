@@ -290,58 +290,41 @@
                 }
             });
 
-            // URL 입력 처리
-            fileURL.addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
+            // 미리보기 버튼 클릭 이벤트
+            previewButton.addEventListener('click', async function() {
+                if (textInput.value.trim() !== '') {
+                    displayContent(textInput.value, 'md'); // 기본적으로 Markdown으로 처리
+                } else if (files.length > 0) {
+                    // 파일을 여러 개 지원할 경우, 첫 번째 파일을 미리보기
+                    const file = files[files.length - 1];
+                    displayContent(file.content, file.type);
+                } else if (fileURL.value.trim() !== '') {
                     const url = fileURL.value.trim();
-                    if (url) {
-                        fetchFileFromURL(url);
+                    try {
+                        await fetchFileFromURL(url);
+                        if (files.length > 0) {
+                            const file = files[files.length - 1];
+                            displayContent(file.content, file.type);
+                        } else {
+                            alert('파일을 불러오는 데 실패했습니다.');
+                        }
+                    } catch (error) {
+                        alert('파일을 불러오는 데 실패했습니다: ' + error.message);
                     }
+                } else {
+                    alert('파일을 업로드하거나 내용을 작성하세요.');
                 }
             });
 
-            function fetchFileFromURL(url) {
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) throw new Error('네트워크 응답이 정상이 아닙니다.');
-                        return response.text();
-                    })
-                    .then(data => {
-                        const extension = url.split('.').pop().toLowerCase();
-                        if (extension === 'md' || extension === 'html' || extension === 'mdx') {
-                            const file = {
-                                name: url.split('/').pop(),
-                                content: data,
-                                type: extension
-                            };
-                            files.push(file);
-                            addFileToList(file);
-                            fileURL.value = '';
-                        } else {
-                            alert('지원하지 않는 파일 형식입니다. .md, .html, .mdx 파일을 업로드해주세요.');
-                        }
-                    })
-                    .catch(error => {
-                        alert('파일을 불러오는 데 실패했습니다: ' + error.message);
-                    });
-            }
-
-            // 파일 목록에 파일 추가
-            function addFileToList(file) {
-                const li = document.createElement('li');
-                li.textContent = file.name;
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = '삭제';
-                removeBtn.addEventListener('click', function() {
-                    fileList.removeChild(li);
-                    files = files.filter(f => f !== file);
-                });
-                li.appendChild(removeBtn);
-                if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                    li.classList.add('dark');
-                }
-                fileList.appendChild(li);
-            }
+            // 초기화 버튼 클릭 이벤트
+            resetButton.addEventListener('click', function() {
+                // 모든 입력 초기화
+                fileInput.value = '';
+                fileURL.value = '';
+                textInput.value = '';
+                files = [];
+                fileList.innerHTML = '';
+            });
 
             // 파일 처리 함수
             function handleFiles(selectedFiles) {
@@ -367,28 +350,46 @@
                 }
             }
 
-            // 미리보기 버튼 클릭 이벤트
-            previewButton.addEventListener('click', function() {
-                if (textInput.value.trim() !== '') {
-                    displayContent(textInput.value, 'md'); // 기본적으로 Markdown으로 처리
-                } else if (files.length > 0) {
-                    // 파일을 여러 개 지원할 경우, 첫 번째 파일을 미리보기
-                    const file = files[files.length - 1];
-                    displayContent(file.content, file.type);
-                } else {
-                    alert('파일을 업로드하거나 내용을 작성하세요.');
+            // 파일 목록에 파일 추가
+            function addFileToList(file) {
+                const li = document.createElement('li');
+                li.textContent = file.name;
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '삭제';
+                removeBtn.addEventListener('click', function() {
+                    fileList.removeChild(li);
+                    files = files.filter(f => f !== file);
+                });
+                li.appendChild(removeBtn);
+                if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                    li.classList.add('dark');
                 }
-            });
+                fileList.appendChild(li);
+            }
 
-            // 초기화 버튼 클릭 이벤트
-            resetButton.addEventListener('click', function() {
-                // 모든 입력 초기화
-                fileInput.value = '';
-                fileURL.value = '';
-                textInput.value = '';
-                files = [];
-                fileList.innerHTML = '';
-            });
+            // URL에서 파일 가져오기 함수
+            async function fetchFileFromURL(url) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('네트워크 응답이 정상이 아닙니다.');
+                    const data = await response.text();
+                    const extension = url.split('.').pop().toLowerCase();
+                    if (extension === 'md' || extension === 'html' || extension === 'mdx') {
+                        const file = {
+                            name: url.split('/').pop(),
+                            content: data,
+                            type: extension
+                        };
+                        files.push(file);
+                        addFileToList(file);
+                        fileURL.value = '';
+                    } else {
+                        alert('지원하지 않는 파일 형식입니다. .md, .html, .mdx 파일을 업로드해주세요.');
+                    }
+                } catch (error) {
+                    alert('파일을 불러오는 데 실패했습니다: ' + error.message);
+                }
+            }
 
             // 컨텐츠 표시 함수
             function displayContent(content, type) {
