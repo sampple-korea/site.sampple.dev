@@ -85,9 +85,11 @@
             transform: translateX(26px);
         }
         .container {
+            width: 100%;
             max-width: 800px;
             margin: 40px auto;
             padding: 20px;
+            box-sizing: border-box; /* 추가 */
             background-color: var(--background-color);
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -105,6 +107,7 @@
             background-color: var(--background-color);
             color: var(--text-color);
             transition: all 0.3s ease;
+            box-sizing: border-box; /* 추가 */
         }
         input[type="file"]:focus, textarea:focus, input[type="url"]:focus {
             border-color: var(--main-color);
@@ -124,6 +127,7 @@
             transition: border-color 0.2s, color 0.2s, background-color 0.3s;
             margin-bottom: 20px;
             backdrop-filter: blur(3px);
+            box-sizing: border-box; /* 추가 */
         }
         .drag-drop-area.dragover {
             border-color: var(--main-color);
@@ -132,6 +136,7 @@
         }
         .buttons {
             display: flex;
+            flex-wrap: wrap; /* 추가 */
             gap: 10px;
             margin-top: 20px;
         }
@@ -167,6 +172,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-sizing: border-box; /* 추가 */
         }
         .file-list li.dark {
             background-color: #333;
@@ -192,6 +198,7 @@
             align-items: center;
             justify-content: space-between;
             backdrop-filter: blur(5px);
+            box-sizing: border-box; /* 추가 */
         }
         .format-switch input {
             display: none;
@@ -228,11 +235,14 @@
         /* 미디어 쿼리 */
         @media (max-width: 600px) {
             .container {
-                margin: 20px;
+                margin: 20px auto;
                 padding: 15px;
             }
             .header h1 {
                 font-size: 20px;
+            }
+            .buttons {
+                flex-direction: column; /* 추가 */
             }
             .buttons button {
                 font-size: 16px;
